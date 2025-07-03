@@ -11,7 +11,7 @@ export async function GET(
   _: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = await params;
+  const { id } = await params;
   if (!id) throw new NotFoundError("User");
 
   try {
@@ -36,7 +36,7 @@ export async function DELETE(
   _: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = await params;
+  const { id } = await params;
   if (!id) throw new NotFoundError("User");
 
   try {
@@ -61,7 +61,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = await params;
+  const { id } = await params;
   if (!id) throw new NotFoundError("User");
 
   try {
