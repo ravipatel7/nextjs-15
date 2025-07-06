@@ -3,58 +3,68 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment } from "react";
+import React from "react";
 
 import { SheetClose } from "@/components/ui/sheet";
 import { sidebarLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 
-const NavLinks = ({ isMobileNav = false }) => {
-  const pathName = usePathname();
-  const userId = 1;
+const NavLinks = ({
+  isMobileNav = false,
+  userId,
+}: {
+  isMobileNav?: boolean;
+  userId?: string;
+}) => {
+  const pathname = usePathname();
+
   return (
     <>
-      {sidebarLinks.map((link) => {
-        const isActiveLink =
-          pathName.includes(link.route) && pathName === link.route;
-        if (link.route === "/profile") {
-          if (userId) link.route = `/profile/${userId}`;
+      {sidebarLinks.map((item) => {
+        const isActive =
+          (pathname.includes(item.route) && item.route.length > 1) ||
+          pathname === item.route;
+
+        if (item.route === "/profile") {
+          if (userId) item.route = `${item.route}/${userId}`;
           else return null;
         }
 
-        const linkComponent = (
+        const LinkComponent = (
           <Link
-            key={link.route}
-            href={link.route}
+            href={item.route}
+            key={item.label}
             className={cn(
-              isActiveLink ?
+              isActive ?
                 "primary-gradient rounded-lg text-light-900"
               : "text-dark300_light900",
               "flex items-center justify-start gap-4 bg-transparent p-4"
             )}>
             <Image
-              src={link.imgURL}
-              alt={link.label}
+              src={item.imgURL}
+              alt={item.label}
               width={20}
               height={20}
-              className={cn({ "invert-colors": !isActiveLink })}
+              className={cn({ "invert-colors": !isActive })}
             />
-            <span
+            <p
               className={cn(
-                isActiveLink ? "base-bold" : "base-medium",
+                isActive ? "base-bold" : "base-medium",
                 !isMobileNav && "max-lg:hidden"
               )}>
-              {link.label}
-            </span>
+              {item.label}
+            </p>
           </Link>
         );
+
         return isMobileNav ?
-            <SheetClose asChild key={link.route}>
-              {linkComponent}
+            <SheetClose asChild key={item.route}>
+              {LinkComponent}
             </SheetClose>
-          : <Fragment key={link.route}>{linkComponent}</Fragment>;
+          : <React.Fragment key={item.route}>{LinkComponent}</React.Fragment>;
       })}
     </>
   );
 };
+
 export default NavLinks;
