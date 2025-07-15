@@ -3,13 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import React, { useRef, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import Editor from "@/components/editor";
 import ROUTES from "@/constants/routes";
 import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { AskQuestionSchema } from "@/lib/validations";
@@ -26,10 +26,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-
-const Editor = dynamic(() => import("@/components/editor"), {
-  ssr: false,
-});
 
 interface Params {
   question?: Question;
@@ -170,7 +166,7 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
               <FormControl>
                 <Editor
                   value={field.value}
-                  editorRef={editorRef}
+                  ref={editorRef}
                   fieldChange={field.onChange}
                 />
               </FormControl>

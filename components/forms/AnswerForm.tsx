@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRef, useState, useTransition } from "react";
@@ -11,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import Editor from "@/components/editor";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,10 +22,6 @@ import {
 import { createAnswer } from "@/lib/actions/answer.action";
 import { api } from "@/lib/api";
 import { AnswerSchema } from "@/lib/validations";
-
-const Editor = dynamic(() => import("@/components/editor"), {
-  ssr: false,
-});
 
 interface Props {
   questionId: string;
@@ -160,7 +156,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
                 <FormControl>
                   <Editor
                     value={field.value}
-                    editorRef={editorRef}
+                    ref={editorRef}
                     fieldChange={field.onChange}
                   />
                 </FormControl>
