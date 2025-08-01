@@ -17,7 +17,8 @@ import { EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS } from "@/constants/states";
 import {
   getUser,
   getUserQuestions,
-  getUsersAnswers,
+  getUserAnswers,
+  getUserStats,
   getUserTopTags,
 } from "@/lib/actions/user.action";
 
@@ -34,14 +35,16 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
 
   if (!success)
     return (
-      <div>
-        <div className="h1-bold text-dark100_light900">{error?.message}</div>
+      <div className="flex flex-col items-center justify-center gap-4">
+        <h1 className="h1-bold text-dark100_light900">User not found</h1>
+        <p className="paragraph-regular text-dark200_light800 max-w-md">
+          {error?.message}
+        </p>
       </div>
     );
 
-  const { user, totalQuestions, totalAnswers } = data!;
-  const { _id, name, image, portfolio, location, createdAt, username, bio } =
-    user;
+  const { user } = data!;
+  const { data: userStats } = await getUserStats({ userId: id });
 
   const {
     success: userQuestionsSuccess,
@@ -57,7 +60,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
     success: userAnswersSuccess,
     data: userAnswers,
     error: userAnswersError,
-  } = await getUsersAnswers({
+  } = await getUserAnswers({
     userId: id,
     page: Number(page) || 1,
     pageSize: Number(pageSize) || 10,
@@ -80,39 +83,42 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       <section className="flex flex-col-reverse items-start justify-between sm:flex-row">
         <div className="flex flex-col items-start gap-4 lg:flex-row">
           <UserAvatar
-            id={_id}
-            name={name}
-            imageUrl={image}
+            id={user._id}
+            name={user.name}
+            imageUrl={user.image}
             className="size-[140px] rounded-full object-cover"
-            fallbackClassName="text-6xl fond-bolder"
+            fallbackClassName="text-6xl font-bolder"
           />
 
           <div className="mt-3">
-            <h2 className="h2-bold text-dark100_light900">{name}</h2>
+            <h2 className="h2-bold text-dark100_light900">{user.name}</h2>
             <p className="paragraph-regular text-dark200_light800">
-              @{username}
+              @{user.username}
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-start gap-5">
-              {portfolio && (
+              {user.portfolio && (
                 <ProfileLink
                   imgUrl="/icons/link.svg"
-                  href={portfolio}
+                  href={user.portfolio}
                   title="Portfolio"
                 />
               )}
-              {location && (
-                <ProfileLink imgUrl="/icons/location.svg" title="Portfolio" />
+              {user.location && (
+                <ProfileLink
+                  imgUrl="/icons/location.svg"
+                  title={user.location}
+                />
               )}
               <ProfileLink
                 imgUrl="/icons/calendar.svg"
-                title={dayjs(createdAt).format("MMMM YYYY")}
+                title={dayjs(user.createdAt).format("MMMM YYYY")}
               />
             </div>
 
-            {bio && (
+            {user.bio && (
               <p className="paragraph-regular text-dark400_light800 mt-8">
-                {bio}
+                {user.bio}
               </p>
             )}
           </div>
@@ -130,13 +136,9 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
       </section>
 
       <Stats
-        totalQuestions={totalQuestions}
-        totalAnswers={totalAnswers}
-        badges={{
-          GOLD: 0,
-          SILVER: 0,
-          BRONZE: 0,
-        }}
+        totalQuestions={userStats?.totalQuestions || 0}
+        totalAnswers={userStats?.totalAnswers || 0}
+        badges={userStats?.badges || { GOLD: 0, SILVER: 0, BRONZE: 0 }}
         reputationPoints={user.reputation || 0}
       />
 
@@ -173,7 +175,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               )}
             />
 
-            <Pagination page={page} isNext={hasMoreQuestions} />
+            <Pagination page={page} isNext={hasMoreQuestions || false} />
           </TabsContent>
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
             <DataRenderer
@@ -187,7 +189,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
                     <AnswerCard
                       key={answer._id}
                       {...answer}
-                      content={answer.content.slice(0, 27)}
+                      content={answer.content.slice(0, 270)}
                       containerClasses="card-wrapper rounded-[10px] px-7 py-9 sm:px-11"
                       showReadMore
                       showActionBtns={
