@@ -12,18 +12,86 @@ import ROUTES from "@/constants/routes";
 import { EMPTY_QUESTION } from "@/constants/states";
 import { getQuestions } from "@/lib/actions/question.action";
 
-interface SearchParams {
-  searchParams: Promise<{ [key: string]: string }>;
-}
+export const metadata = {
+  title: "Dev Overflow",
+  description:
+    "Dev Overflow is a community-driven platform to ask and answer real-world programming questions. Learn, grow, and connect with developers around the world.",
 
-const Home = async ({ searchParams }: SearchParams) => {
+  generator: "Next.js",
+  applicationName: "Dev Overflow",
+  referrer: "origin-when-cross-origin",
+
+  keywords: [
+    "Dev Overflow",
+    "programming questions",
+    "developer Q&A",
+    "web development",
+    "JavaScript",
+    "React",
+    "Node.js",
+    "algorithms",
+    "data structures",
+    "developer community",
+  ],
+
+  authors: [
+    { name: "Adrian" },
+    { name: "Dev Overflow Team", url: "https://devoverflow.dev/team" },
+  ],
+  creator: "Adrian",
+  publisher: "Dev Overflow",
+
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+
+  icons: {
+    icon: "/images/site-logo.svg", // regular favicon
+    shortcut: "/favicon.ico", // browser address bar icon
+    apple: "/apple-touch-icon.png", // Apple devices
+    other: [
+      {
+        rel: "mask-icon",
+        url: "/safari-pinned-tab.svg",
+        color: "#5bbad5",
+      },
+    ],
+  },
+
+  // Optional: Theme color for browser UI and mobile experience
+  themeColor: "#18181b",
+
+  // Optional: Color for Microsoft tiles and pinned sites
+  msapplication: {
+    TileColor: "#ffffff",
+    TileImage: "/mstile-150x150.png",
+  },
+};
+
+async function Home({ searchParams }: RouteParams) {
   const { page, pageSize, query, filter } = await searchParams;
 
   const { success, data, error } = await getQuestions({
     page: Number(page) || 1,
     pageSize: Number(pageSize) || 10,
-    query: query || "",
-    filter: filter || "",
+    query,
+    filter,
   });
 
   const { questions, isNext } = data || {};
@@ -36,12 +104,14 @@ const Home = async ({ searchParams }: SearchParams) => {
         <Button
           className="primary-gradient min-h-[46px] px-4 py-3 !text-light-900"
           asChild>
-          <Link href={ROUTES.ASK_QUESTION}>Ask a Question</Link>
+          <Link href={ROUTES.ASK_QUESTION} className="max-sm:w-full">
+            Ask a Question
+          </Link>
         </Button>
       </section>
       <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
-          route="/"
+          route={ROUTES.HOME}
           imgSrc="/icons/search.svg"
           placeholder="Search questions..."
           otherClasses="flex-1"
@@ -70,6 +140,6 @@ const Home = async ({ searchParams }: SearchParams) => {
       <Pagination page={page} isNext={isNext || false} />
     </>
   );
-};
+}
 
 export default Home;
